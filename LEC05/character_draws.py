@@ -1,5 +1,6 @@
 import math
 from pico2d import* 
+from pathlib import Path
 
 WIDTH = 800
 HEIGHT = 600
@@ -103,7 +104,8 @@ def move_triangle():
 
 open_canvas(WIDTH, HEIGHT)
 
-boy = load_image('character.png')
+image_path = Path(__file__).resolve().parent / 'character.png'
+boy = load_image(str(image_path))
 
 
 
