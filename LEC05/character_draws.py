@@ -75,8 +75,10 @@ def move_ab():
 
 
 def move_bc():
-    print('B -> C')
-
+    for step in range(121):
+        t = step / 120
+        x, y = line_position(TRI_B, TRI_C, t)
+        draw_boy(x, y)
 
 def move_ca():
     print('C -> A')
