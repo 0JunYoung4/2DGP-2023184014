@@ -27,7 +27,8 @@ def circle_position(degree):
 def handle_events():
     for event in get_events():
         if event.type == SDL_QUIT:
-            print('창 닫기 요청 감지')
+            close_canvas()
+            raise SystemExit
 
 def draw_boy(x, y):
     handle_events()
