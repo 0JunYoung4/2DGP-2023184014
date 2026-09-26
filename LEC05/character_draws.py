@@ -4,9 +4,12 @@ WIDTH = 800
 HEIGHT = 600
 CENTER_X = WIDTH//2
 CENTER_Y = HEIGHT//2
+RADIUS = 200
 
 def move_circle():
-   print('circle')
+  clear_canvas()
+  boy.draw(CENTER_X + RADIUS, CENTER_Y)
+  update_canvas()
 
 def move_rectangle():
     print('rectangle')
@@ -18,9 +21,7 @@ open_canvas(WIDTH, HEIGHT)
 
 boy = load_image('character.png')
 
-clear_canvas()
-boy.draw(CENTER_X, CENTER_Y)
-update_canvas()
+
 
 while True:
     move_circle()
