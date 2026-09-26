@@ -60,12 +60,22 @@ def move_rectangle():
     move_bottom()
     move_left()
 
+def move_ab():
+    print('A -> B')
+
+
+def move_bc():
+    print('B -> C')
+
+
+def move_ca():
+    print('C -> A')
+
+
 def move_triangle():
-    clear_canvas()
-    boy.draw(*TRI_A)
-    boy.draw(*TRI_B)
-    boy.draw(*TRI_C)
-    update_canvas()
+    move_ab()
+    move_bc()
+    move_ca()
 
 open_canvas(WIDTH, HEIGHT)
 
