@@ -14,10 +14,12 @@ def circle_position(degree):
     return x, y
 
 def move_circle():
-  x,y=circle_position(0)
-  clear_canvas()
-  boy.draw(x, y)
-  update_canvas()
+    for degree in range(91):
+        x, y = circle_position(degree)
+        clear_canvas()
+        boy.draw(x, y)
+        update_canvas()
+        delay(0.01)
 
 def move_rectangle():
     print('rectangle')
