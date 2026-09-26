@@ -17,7 +17,6 @@ TRI_A = (100, 100)
 TRI_B = (700, 100)
 TRI_C = (400, 500)
 
-TEST_MODE = 'all'
 
 def circle_position(degree):
     theta = math.radians(degree)
@@ -108,18 +107,7 @@ image_path = Path(__file__).resolve().parent / 'character.png'
 boy = load_image(str(image_path))
 
 
-
-if TEST_MODE == 'circle':
+while True:
     move_circle()
-elif TEST_MODE == 'rectangle':
     move_rectangle()
-elif TEST_MODE == 'triangle':
     move_triangle()
-else:
-    while True:
-        move_circle()
-        move_rectangle()
-        move_triangle()
-
-delay(1)
-close_canvas()
