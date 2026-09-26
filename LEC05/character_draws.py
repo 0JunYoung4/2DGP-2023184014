@@ -16,7 +16,7 @@ TRI_A = (100, 100)
 TRI_B = (700, 100)
 TRI_C = (400, 500)
 
-TEST_MODE = 'triangle'
+TEST_MODE = 'all'
 
 def circle_position(degree):
     theta = math.radians(degree)
