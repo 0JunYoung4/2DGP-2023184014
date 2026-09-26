@@ -14,7 +14,7 @@ def circle_position(degree):
     return x, y
 
 def move_circle():
-    for degree in range(181):
+    for degree in range(361):
         x, y = circle_position(degree)
         clear_canvas()
         boy.draw(x, y)
