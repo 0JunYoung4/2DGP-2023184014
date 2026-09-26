@@ -13,13 +13,16 @@ def circle_position(degree):
     y = CENTER_Y + RADIUS * math.sin(theta)
     return x, y
 
+def draw_boy(x, y):
+    clear_canvas()
+    boy.draw(x, y)
+    update_canvas()
+    delay(0.01)
+
 def move_circle():
     for degree in range(361):
         x, y = circle_position(degree)
-        clear_canvas()
-        boy.draw(x, y)
-        update_canvas()
-        delay(0.01)
+        draw_boy(x, y)
 
 def move_rectangle():
     print('rectangle')
