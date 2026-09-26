@@ -68,9 +68,10 @@ def line_position(start, end, t):
     return x, y
 
 def move_ab():
-    print(line_position(TRI_A, TRI_B, 0))
-    print(line_position(TRI_A, TRI_B, 0.5))
-    print(line_position(TRI_A, TRI_B, 1))
+    for step in range(121):
+        t = step / 120
+        x, y = line_position(TRI_A, TRI_B, t)
+        draw_boy(x, y)
 
 
 def move_bc():
