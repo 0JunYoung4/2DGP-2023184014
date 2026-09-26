@@ -12,6 +12,8 @@ RECT_RIGHT = 750
 RECT_BOTTOM = 50
 RECT_TOP = 550
 
+TEST_MODE = 'rectangle'
+
 def circle_position(degree):
     theta = math.radians(degree)
     x = CENTER_X + RADIUS * math.cos(theta)
@@ -63,11 +65,16 @@ boy = load_image('character.png')
 
 
 
-while True:
+if TEST_MODE == 'circle':
+    move_circle()
+elif TEST_MODE == 'rectangle':
+    move_rectangle()
+elif TEST_MODE == 'triangle':
+    move_triangle()
+else:
     move_circle()
     move_rectangle()
     move_triangle()
-    break
 
 delay(1)
 close_canvas()
