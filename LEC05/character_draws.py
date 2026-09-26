@@ -29,6 +29,9 @@ def handle_events():
         if event.type == SDL_QUIT:
             close_canvas()
             raise SystemExit
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            close_canvas()
+            raise SystemExit
 
 def draw_boy(x, y):
     handle_events()
