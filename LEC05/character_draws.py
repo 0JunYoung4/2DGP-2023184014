@@ -1,3 +1,4 @@
+import math
 from pico2d import* 
 
 WIDTH = 800
@@ -6,9 +7,16 @@ CENTER_X = WIDTH//2
 CENTER_Y = HEIGHT//2
 RADIUS = 200
 
+def circle_position(degree):
+    theta = math.radians(degree)
+    x = CENTER_X + RADIUS * math.cos(theta)
+    y = CENTER_Y + RADIUS * math.sin(theta)
+    return x, y
+
 def move_circle():
+  x,y=circle_position(0)
   clear_canvas()
-  boy.draw(CENTER_X + RADIUS, CENTER_Y)
+  boy.draw(x, y)
   update_canvas()
 
 def move_rectangle():
