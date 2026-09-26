@@ -60,8 +60,17 @@ def move_rectangle():
     move_bottom()
     move_left()
 
+def line_position(start, end, t):
+    x0, y0 = start
+    x1, y1 = end
+    x = x0 + (x1 - x0) * t
+    y = y0 + (y1 - y0) * t
+    return x, y
+
 def move_ab():
-    print('A -> B')
+    print(line_position(TRI_A, TRI_B, 0))
+    print(line_position(TRI_A, TRI_B, 0.5))
+    print(line_position(TRI_A, TRI_B, 1))
 
 
 def move_bc():
