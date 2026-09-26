@@ -12,7 +12,11 @@ RECT_RIGHT = 750
 RECT_BOTTOM = 50
 RECT_TOP = 550
 
-TEST_MODE = 'rectangle'
+TRI_A = (100, 100)
+TRI_B = (700, 100)
+TRI_C = (400, 500)
+
+TEST_MODE = 'triangle'
 
 def circle_position(degree):
     theta = math.radians(degree)
@@ -57,7 +61,11 @@ def move_rectangle():
     move_left()
 
 def move_triangle():
-    print('triangle')
+    clear_canvas()
+    boy.draw(*TRI_A)
+    boy.draw(*TRI_B)
+    boy.draw(*TRI_C)
+    update_canvas()
 
 open_canvas(WIDTH, HEIGHT)
 
