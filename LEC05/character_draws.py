@@ -24,7 +24,13 @@ def circle_position(degree):
     y = CENTER_Y + RADIUS * math.sin(theta)
     return x, y
 
+def handle_events():
+    for event in get_events():
+        if event.type == SDL_QUIT:
+            print('창 닫기 요청 감지')
+
 def draw_boy(x, y):
+    handle_events()
     clear_canvas()
     boy.draw(x, y)
     update_canvas()
