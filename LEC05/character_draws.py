@@ -104,9 +104,10 @@ elif TEST_MODE == 'rectangle':
 elif TEST_MODE == 'triangle':
     move_triangle()
 else:
-    move_circle()
-    move_rectangle()
-    move_triangle()
+    while True:
+        move_circle()
+        move_rectangle()
+        move_triangle()
 
 delay(1)
 close_canvas()
