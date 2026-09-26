@@ -7,6 +7,11 @@ CENTER_X = WIDTH//2
 CENTER_Y = HEIGHT//2
 RADIUS = 200
 
+RECT_LEFT = 50
+RECT_RIGHT = 750
+RECT_BOTTOM = 50
+RECT_TOP = 550
+
 def circle_position(degree):
     theta = math.radians(degree)
     x = CENTER_X + RADIUS * math.cos(theta)
@@ -25,20 +30,23 @@ def move_circle():
         draw_boy(x, y)
 
 def move_top():
-    for x in range(50,751,5):
-        draw_boy(x,550)
+    for x in range(RECT_LEFT, RECT_RIGHT + 1, 5):
+        draw_boy(x, RECT_TOP)
+
 
 def move_right():
-    for y in range(550, 49, -5):
-        draw_boy(750, y)
+    for y in range(RECT_TOP, RECT_BOTTOM - 1, -5):
+        draw_boy(RECT_RIGHT, y)
+
 
 def move_bottom():
-    for x in range(750, 49, -5):
-       draw_boy(x, 50)
+    for x in range(RECT_RIGHT, RECT_LEFT - 1, -5):
+        draw_boy(x, RECT_BOTTOM)
+
 
 def move_left():
-    for y in range(50, 551, 5):
-        draw_boy(50, y)
+    for y in range(RECT_BOTTOM, RECT_TOP + 1, 5):
+        draw_boy(RECT_LEFT, y)
 
 def move_rectangle():
     move_top()
