@@ -94,6 +94,76 @@
           "anchor_y": 187
         }
       ]
+    },
+    {
+      "name": "Run",
+      "fps": 12,
+      "frames": [
+        {
+          "x": 30,
+          "y": 515,
+          "width": 166,
+          "height": 188,
+          "anchor_x": 83,
+          "anchor_y": 192
+        },
+        {
+          "x": 228,
+          "y": 514,
+          "width": 160,
+          "height": 183,
+          "anchor_x": 80,
+          "anchor_y": 193
+        },
+        {
+          "x": 413,
+          "y": 515,
+          "width": 165,
+          "height": 188,
+          "anchor_x": 82,
+          "anchor_y": 192
+        },
+        {
+          "x": 595,
+          "y": 510,
+          "width": 167,
+          "height": 193,
+          "anchor_x": 83,
+          "anchor_y": 197
+        },
+        {
+          "x": 778,
+          "y": 513,
+          "width": 168,
+          "height": 187,
+          "anchor_x": 84,
+          "anchor_y": 194
+        },
+        {
+          "x": 965,
+          "y": 517,
+          "width": 161,
+          "height": 192,
+          "anchor_x": 80,
+          "anchor_y": 190
+        },
+        {
+          "x": 1148,
+          "y": 507,
+          "width": 176,
+          "height": 198,
+          "anchor_x": 88,
+          "anchor_y": 200
+        },
+        {
+          "x": 1355,
+          "y": 511,
+          "width": 145,
+          "height": 197,
+          "anchor_x": 72,
+          "anchor_y": 196
+        }
+      ]
     }
   ]
 }
