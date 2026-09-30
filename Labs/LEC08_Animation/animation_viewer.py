@@ -203,6 +203,19 @@ def run_self_tests():
                              (fast.animation_index, fast.frame_index, fast.completed_cycles, fast.finished))
             self.assertAlmostEqual(slow.elapsed, fast.elapsed)
 
+        def test_atlas_and_bonus_requirements(self):
+            validate_assets()
+            self.assertEqual([len(a.frames) for a in ANIMATIONS], [4, 6, 8, 5])
+            self.assertGreater(len({(f.width, f.height) for f in ALL_FRAMES}), 1)
+            for frame in ALL_FRAMES:
+                x, y, width, height = destination_rect(frame)
+                self.assertGreaterEqual(x - width / 2, 0)
+                self.assertLessEqual(x + width / 2, CANVAS_WIDTH)
+                self.assertGreaterEqual(y - height / 2, 0)
+                self.assertLessEqual(y + height / 2, CANVAS_HEIGHT)
+                # 잘라내기 여백 4픽셀을 제외한 캐릭터 높이로 검사한다.
+                self.assertGreaterEqual((frame.height - 4) * DISPLAY_SCALE, CANVAS_HEIGHT / 2)
+
         def test_invalid_delta_does_not_hang(self):
             player = AnimationPlayer()
             player.update(-1)
