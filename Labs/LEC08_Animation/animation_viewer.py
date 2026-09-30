@@ -137,7 +137,9 @@ def main():
         player = AnimationPlayer()
         previous_time = perf_counter()
         while True:
-            if any(event.type == p2.SDL_QUIT for event in p2.get_events()):
+            if any(event.type == p2.SDL_QUIT or
+                   (event.type == p2.SDL_KEYDOWN and event.key == p2.SDLK_ESCAPE)
+                   for event in p2.get_events()):
                 break
             now = perf_counter()
             player.update(now - previous_time)
