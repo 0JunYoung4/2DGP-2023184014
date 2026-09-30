@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,29 @@ ANIMATIONS = (
 CANVAS_WIDTH, CANVAS_HEIGHT = 900, 700
 
 
+class AnimationPlayer:
+    def __init__(self, animations=ANIMATIONS):
+        self.animations = animations
+        self.animation_index = 0
+        self.frame_index = 0
+        self.elapsed = 0.0
+
+    @property
+    def animation(self):
+        return self.animations[self.animation_index]
+
+    @property
+    def frame(self):
+        return self.animation.frames[self.frame_index]
+
+    def update(self, dt):
+        self.elapsed += max(0.0, dt)
+        duration = 1.0 / self.animation.fps
+        while self.elapsed + 1e-9 >= duration:
+            self.elapsed = max(0.0, self.elapsed - duration)
+            self.frame_index = (self.frame_index + 1) % len(self.animation.frames)
+
+
 def draw_frame(sprite, frame):
     # Pico2D는 왼쪽 아래 기준이므로 PNG의 위쪽 좌표를 변환한다.
     bottom = SHEET_HEIGHT - frame.y - frame.height
@@ -80,11 +104,16 @@ def main():
     try:
         p2.hide_lattice()
         sprite = p2.load_image(str(SPRITE_PATH))
+        player = AnimationPlayer()
+        previous_time = perf_counter()
         while True:
             if any(event.type == p2.SDL_QUIT for event in p2.get_events()):
                 break
+            now = perf_counter()
+            player.update(now - previous_time)
+            previous_time = now
             p2.clear_canvas()
-            draw_frame(sprite, ANIMATIONS[0].frames[0])
+            draw_frame(sprite, player.frame)
             p2.update_canvas()
             p2.delay(0.01)
     finally:
