@@ -40,6 +40,60 @@
           "anchor_y": 185
         }
       ]
+    },
+    {
+      "name": "Walk",
+      "fps": 9,
+      "frames": [
+        {
+          "x": 60,
+          "y": 277,
+          "width": 115,
+          "height": 188,
+          "anchor_x": 57,
+          "anchor_y": 186
+        },
+        {
+          "x": 238,
+          "y": 274,
+          "width": 109,
+          "height": 191,
+          "anchor_x": 54,
+          "anchor_y": 189
+        },
+        {
+          "x": 415,
+          "y": 274,
+          "width": 103,
+          "height": 191,
+          "anchor_x": 51,
+          "anchor_y": 189
+        },
+        {
+          "x": 583,
+          "y": 276,
+          "width": 115,
+          "height": 189,
+          "anchor_x": 57,
+          "anchor_y": 187
+        },
+        {
+          "x": 763,
+          "y": 275,
+          "width": 118,
+          "height": 190,
+          "anchor_x": 59,
+          "anchor_y": 188
+        },
+        {
+          "x": 945,
+          "y": 276,
+          "width": 116,
+          "height": 189,
+          "anchor_x": 58,
+          "anchor_y": 187
+        }
+      ]
     }
   ]
 }
