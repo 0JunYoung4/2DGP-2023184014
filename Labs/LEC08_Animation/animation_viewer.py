@@ -1,5 +1,8 @@
 """Drill #8: 크기가 다른 프레임과 동작별 프레임 수를 지원하는 Pico2D 뷰어."""
 
+import math
+import struct
+
 from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
@@ -92,6 +95,8 @@ class AnimationPlayer:
         return self.animation.frames[self.frame_index]
 
     def update(self, dt):
+        if not math.isfinite(dt):
+            raise ValueError('dt must be finite')
         self.elapsed += max(0.0, dt)
         while True:
             duration = PAUSE_SECONDS if self.finished else 1.0 / self.animation.fps
@@ -137,7 +142,25 @@ def draw_status(font, player):
     font.draw(20, 24, f"{state}  |  Idle > Walk > Run > Jump  |  ESC: Exit", (35, 35, 45))
 
 
+def validate_assets():
+    with SPRITE_PATH.open("rb") as source:
+        header = source.read(24)
+    if header[:8] != b"\x89PNG\r\n\x1a\n" or len(header) != 24:
+        raise ValueError("Sprite sheet must be a PNG image")
+    if struct.unpack(">II", header[16:24]) != (SHEET_WIDTH, SHEET_HEIGHT):
+        raise ValueError("Sprite sheet dimensions do not match the frame data")
+    for animation in ANIMATIONS:
+        if not animation.frames or not math.isfinite(animation.fps) or animation.fps <= 0:
+            raise ValueError(f"Invalid animation: {animation.name}")
+        for frame in animation.frames:
+            if not (frame.width > 0 and frame.height > 0 and frame.x >= 0 and frame.y >= 0
+                    and frame.x + frame.width <= SHEET_WIDTH
+                    and frame.y + frame.height <= SHEET_HEIGHT):
+                raise ValueError(f"Frame outside sprite sheet: {animation.name}: {frame}")
+
+
 def main():
+    validate_assets()
     import pico2d as p2
 
     p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
