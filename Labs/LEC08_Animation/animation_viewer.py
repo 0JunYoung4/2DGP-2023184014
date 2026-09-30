@@ -65,6 +65,14 @@ ANIMATIONS = (
 CANVAS_WIDTH, CANVAS_HEIGHT = 900, 700
 
 
+def draw_frame(sprite, frame):
+    # Pico2D는 왼쪽 아래 기준이므로 PNG의 위쪽 좌표를 변환한다.
+    bottom = SHEET_HEIGHT - frame.y - frame.height
+    sprite.clip_draw(frame.x, bottom, frame.width, frame.height,
+                     CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
+                     frame.width, frame.height)
+
+
 def main():
     import pico2d as p2
 
@@ -76,6 +84,7 @@ def main():
             if any(event.type == p2.SDL_QUIT for event in p2.get_events()):
                 break
             p2.clear_canvas()
+            draw_frame(sprite, ANIMATIONS[0].frames[0])
             p2.update_canvas()
             p2.delay(0.01)
     finally:
