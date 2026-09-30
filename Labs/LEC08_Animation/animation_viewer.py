@@ -56,8 +56,8 @@ ANIMATIONS = (
     Animation("Jump", 7, (
         Frame(109, 860, 135, 129, 67, 127),
         Frame(302, 779, 141, 210, 70, 208),
-        Frame(487, 741, 130, 171, 65, 246),
-        Frame(665, 770, 111, 200, 55, 217),
+        Frame(487, 741, 130, 171, 65, 203),
+        Frame(665, 770, 111, 200, 55, 212),
         Frame(845, 838, 142, 151, 71, 149),
     )),
 )
@@ -68,6 +68,10 @@ REPEAT_COUNT = 5
 PAUSE_SECONDS = 1.0
 ALL_FRAMES = tuple(frame for animation in ANIMATIONS for frame in animation.frames)
 DISPLAY_SCALE = CANVAS_HEIGHT * 0.53 / min(frame.height for frame in ALL_FRAMES)
+# 전체 동작의 위/아래 범위를 중앙에 배치하고, 발 위치를 공통으로 맞춘다.
+ABOVE_GROUND = max(frame.anchor_y for frame in ALL_FRAMES) * DISPLAY_SCALE
+BELOW_GROUND = max(frame.height - frame.anchor_y for frame in ALL_FRAMES) * DISPLAY_SCALE
+GROUND_Y = (CANVAS_HEIGHT - ABOVE_GROUND + BELOW_GROUND) / 2
 
 
 class AnimationPlayer:
@@ -110,12 +114,17 @@ class AnimationPlayer:
                     self.frame_index = 0
 
 
+def destination_rect(frame):
+    x = CANVAS_WIDTH / 2 + (frame.width / 2 - frame.anchor_x) * DISPLAY_SCALE
+    y = GROUND_Y + (frame.anchor_y - frame.height / 2) * DISPLAY_SCALE
+    return x, y, frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE
+
+
 def draw_frame(sprite, frame):
     # Pico2D는 왼쪽 아래 기준이므로 PNG의 위쪽 좌표를 변환한다.
     bottom = SHEET_HEIGHT - frame.y - frame.height
     sprite.clip_draw(frame.x, bottom, frame.width, frame.height,
-                     CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
-                     frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
+                     *destination_rect(frame))
 
 
 def main():
