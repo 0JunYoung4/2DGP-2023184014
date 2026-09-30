@@ -93,6 +93,7 @@ class AnimationPlayer:
                 break
             self.elapsed = max(0.0, self.elapsed - duration)
             if self.finished:
+                self.animation_index = (self.animation_index + 1) % len(self.animations)
                 self.finished = False
                 self.completed_cycles = 0
                 self.frame_index = 0
