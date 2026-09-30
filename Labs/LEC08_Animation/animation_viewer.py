@@ -60,3 +60,27 @@ ANIMATIONS = (
         Frame(845, 838, 142, 151, 71, 149),
     )),
 )
+
+
+CANVAS_WIDTH, CANVAS_HEIGHT = 900, 700
+
+
+def main():
+    import pico2d as p2
+
+    p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+    try:
+        p2.hide_lattice()
+        sprite = p2.load_image(str(SPRITE_PATH))
+        while True:
+            if any(event.type == p2.SDL_QUIT for event in p2.get_events()):
+                break
+            p2.clear_canvas()
+            p2.update_canvas()
+            p2.delay(0.01)
+    finally:
+        p2.close_canvas()
+
+
+if __name__ == "__main__":
+    main()
