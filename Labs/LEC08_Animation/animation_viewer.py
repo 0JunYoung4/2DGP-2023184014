@@ -159,6 +159,64 @@ def validate_assets():
                 raise ValueError(f"Frame outside sprite sheet: {animation.name}: {frame}")
 
 
+def run_self_tests():
+    """창을 열지 않고 시간 경계와 반복 순서를 검증한다."""
+    import unittest
+
+    class PlaybackTests(unittest.TestCase):
+        def test_five_cycles_then_exact_one_second_pause(self):
+            player = AnimationPlayer()
+            for index, animation in enumerate(ANIMATIONS):
+                self.assertEqual(player.animation_index, index)
+                for cycle in range(REPEAT_COUNT):
+                    player.update(len(animation.frames) / animation.fps - 0.0001)
+                    self.assertEqual(player.completed_cycles, cycle)
+                    self.assertFalse(player.finished)
+                    player.update(0.0001)
+                    self.assertEqual(player.completed_cycles, cycle + 1)
+                self.assertTrue(player.finished)
+                final_frame = player.frame
+                player.update(0.999)
+                self.assertEqual(player.animation_index, index)
+                self.assertEqual(player.frame, final_frame)
+                self.assertTrue(player.finished)
+                player.update(0.001)
+                self.assertFalse(player.finished)
+                self.assertEqual(player.frame_index, 0)
+            self.assertEqual(player.animation_index, 0)
+
+        def test_large_time_step_and_small_steps_agree(self):
+            total = sum(REPEAT_COUNT * len(a.frames) / a.fps + PAUSE_SECONDS
+                        for a in ANIMATIONS)
+            player = AnimationPlayer()
+            player.update(total * 100 + 0.21)
+            self.assertEqual(player.animation_index, 0)
+            self.assertEqual(player.frame_index, 1)
+            self.assertEqual(player.completed_cycles, 0)
+            self.assertFalse(player.finished)
+            slow = AnimationPlayer()
+            fast = AnimationPlayer()
+            for _ in range(5000):
+                slow.update(0.01)
+            fast.update(50.0)
+            self.assertEqual((slow.animation_index, slow.frame_index, slow.completed_cycles, slow.finished),
+                             (fast.animation_index, fast.frame_index, fast.completed_cycles, fast.finished))
+            self.assertAlmostEqual(slow.elapsed, fast.elapsed)
+
+        def test_invalid_delta_does_not_hang(self):
+            player = AnimationPlayer()
+            player.update(-1)
+            self.assertEqual(player.frame_index, 0)
+            for dt in (float("nan"), float("inf")):
+                with self.assertRaises(ValueError):
+                    player.update(dt)
+
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(PlaybackTests)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    if not result.wasSuccessful():
+        raise SystemExit(1)
+
+
 def main():
     validate_assets()
     import pico2d as p2
@@ -189,4 +247,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--self-test", action="store_true", help="verify playback without opening a window")
+    args = parser.parse_args()
+    if args.self_test:
+        run_self_tests()
+    else:
+        main()
