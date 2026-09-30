@@ -66,6 +66,8 @@ ANIMATIONS = (
 CANVAS_WIDTH, CANVAS_HEIGHT = 900, 700
 REPEAT_COUNT = 5
 PAUSE_SECONDS = 1.0
+ALL_FRAMES = tuple(frame for animation in ANIMATIONS for frame in animation.frames)
+DISPLAY_SCALE = CANVAS_HEIGHT * 0.53 / min(frame.height for frame in ALL_FRAMES)
 
 
 class AnimationPlayer:
@@ -113,7 +115,7 @@ def draw_frame(sprite, frame):
     bottom = SHEET_HEIGHT - frame.y - frame.height
     sprite.clip_draw(frame.x, bottom, frame.width, frame.height,
                      CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
-                     frame.width, frame.height)
+                     frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
 
 
 def main():
