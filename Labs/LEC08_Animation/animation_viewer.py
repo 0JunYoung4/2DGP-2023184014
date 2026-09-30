@@ -127,6 +127,16 @@ def draw_frame(sprite, frame):
                      *destination_rect(frame))
 
 
+def draw_status(font, player):
+    animation = player.animation
+    cycle = min(player.completed_cycles + 1, REPEAT_COUNT)
+    font.draw(20, CANVAS_HEIGHT - 24,
+              f"{animation.name}  |  Frame {player.frame_index + 1}/{len(animation.frames)}"
+              f"  |  Repeat {cycle}/{REPEAT_COUNT}", (35, 35, 45))
+    state = f"Pause: {max(0.0, PAUSE_SECONDS - player.elapsed):.1f}s" if player.finished else "Playing"
+    font.draw(20, 24, f"{state}  |  Idle > Walk > Run > Jump  |  ESC: Exit", (35, 35, 45))
+
+
 def main():
     import pico2d as p2
 
@@ -134,6 +144,8 @@ def main():
     try:
         p2.hide_lattice()
         sprite = p2.load_image(str(SPRITE_PATH))
+        font_path = Path(p2.__file__).resolve().parent / 'data' / 'ConsolaMalgun.ttf'
+        font = p2.load_font(str(font_path), 18)
         player = AnimationPlayer()
         previous_time = perf_counter()
         while True:
@@ -146,6 +158,7 @@ def main():
             previous_time = now
             p2.clear_canvas()
             draw_frame(sprite, player.frame)
+            draw_status(font, player)
             p2.update_canvas()
             p2.delay(0.01)
     finally:
