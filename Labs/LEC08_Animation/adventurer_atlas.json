@@ -164,6 +164,52 @@
           "anchor_y": 196
         }
       ]
+    },
+    {
+      "name": "Jump",
+      "fps": 7,
+      "frames": [
+        {
+          "x": 109,
+          "y": 860,
+          "width": 135,
+          "height": 129,
+          "anchor_x": 67,
+          "anchor_y": 127
+        },
+        {
+          "x": 302,
+          "y": 779,
+          "width": 141,
+          "height": 210,
+          "anchor_x": 70,
+          "anchor_y": 208
+        },
+        {
+          "x": 487,
+          "y": 741,
+          "width": 130,
+          "height": 171,
+          "anchor_x": 65,
+          "anchor_y": 246
+        },
+        {
+          "x": 665,
+          "y": 770,
+          "width": 111,
+          "height": 200,
+          "anchor_x": 55,
+          "anchor_y": 217
+        },
+        {
+          "x": 845,
+          "y": 838,
+          "width": 142,
+          "height": 151,
+          "anchor_x": 71,
+          "anchor_y": 149
+        }
+      ]
     }
   ]
 }
