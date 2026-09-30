@@ -65,6 +65,7 @@ ANIMATIONS = (
 
 CANVAS_WIDTH, CANVAS_HEIGHT = 900, 700
 REPEAT_COUNT = 5
+PAUSE_SECONDS = 1.0
 
 
 class AnimationPlayer:
@@ -85,20 +86,25 @@ class AnimationPlayer:
         return self.animation.frames[self.frame_index]
 
     def update(self, dt):
-        if self.finished:
-            return
         self.elapsed += max(0.0, dt)
-        duration = 1.0 / self.animation.fps
-        while self.elapsed + 1e-9 >= duration:
+        while True:
+            duration = PAUSE_SECONDS if self.finished else 1.0 / self.animation.fps
+            if self.elapsed + 1e-9 < duration:
+                break
             self.elapsed = max(0.0, self.elapsed - duration)
+            if self.finished:
+                self.finished = False
+                self.completed_cycles = 0
+                self.frame_index = 0
+                continue
             self.frame_index += 1
             if self.frame_index == len(self.animation.frames):
                 self.completed_cycles += 1
                 if self.completed_cycles == REPEAT_COUNT:
                     self.frame_index -= 1
                     self.finished = True
-                    break
-                self.frame_index = 0
+                else:
+                    self.frame_index = 0
 
 
 def draw_frame(sprite, frame):
