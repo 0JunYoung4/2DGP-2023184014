@@ -1,0 +1,45 @@
+{
+  "image": "adventurer_bonus_sheet.png",
+  "width": 1536,
+  "height": 1024,
+  "animations": [
+    {
+      "name": "Idle",
+      "fps": 6,
+      "frames": [
+        {
+          "x": 92,
+          "y": 41,
+          "width": 70,
+          "height": 186,
+          "anchor_x": 35,
+          "anchor_y": 184
+        },
+        {
+          "x": 270,
+          "y": 39,
+          "width": 71,
+          "height": 188,
+          "anchor_x": 35,
+          "anchor_y": 186
+        },
+        {
+          "x": 442,
+          "y": 41,
+          "width": 72,
+          "height": 186,
+          "anchor_x": 36,
+          "anchor_y": 184
+        },
+        {
+          "x": 621,
+          "y": 40,
+          "width": 71,
+          "height": 187,
+          "anchor_x": 35,
+          "anchor_y": 185
+        }
+      ]
+    }
+  ]
+}
