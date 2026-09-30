@@ -1,4 +1,14 @@
-"""Drill #8: 크기가 다른 프레임과 동작별 프레임 수를 지원하는 Pico2D 뷰어."""
+"""Drill #8 — 애니메이션 뷰어 (Python 3.10+, pico2d).
+
+실행: python Labs/LEC08_Animation/animation_viewer.py
+검증: python Labs/LEC08_Animation/animation_viewer.py --self-test
+종료: ESC 또는 창 닫기. PNG는 이 파일과 같은 폴더에 둔다.
+
+대기(4장) → 걷기(6장) → 달리기(8장) → 점프(5장)를 무한 반복한다.
+각 동작은 5회 재생 후 마지막 자세에서 1초 정지한다.
+가산점 구현: 프레임마다 다른 잘라내기 크기, 동작마다 다른 프레임 수.
+제출 설명에 위 두 기능을 명시한다. 모든 데이터와 코드는 이 파일에 있다.
+"""
 
 import math
 import struct
@@ -56,6 +66,7 @@ ANIMATIONS = (
         Frame(1148, 507, 176, 198, 88, 200),
         Frame(1355, 511, 145, 197, 72, 196),
     )),
+    # 점프 정점과 하강의 기준점은 화면 안에서 높이 변화를 표현하도록 조정했다.
     Animation("Jump", 7, (
         Frame(109, 860, 135, 129, 67, 127),
         Frame(302, 779, 141, 210, 70, 208),
@@ -78,6 +89,8 @@ GROUND_Y = (CANVAS_HEIGHT - ABOVE_GROUND + BELOW_GROUND) / 2
 
 
 class AnimationPlayer:
+    """시간을 누적해 재생/정지를 전환하며, 지연된 시간도 다음 상태로 넘긴다."""
+
     def __init__(self, animations=ANIMATIONS):
         self.animations = animations
         self.animation_index = 0
