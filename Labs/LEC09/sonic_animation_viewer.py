@@ -6,10 +6,12 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 SPRITE_PATH = Path(__file__).resolve().with_name("sonic-sprite.png")
+FRAME_SECONDS = 1.0 / 10
 SHEET_WIDTH, SHEET_HEIGHT = 399, 525
 # 시트 조사: 제목(상단)과 크레딧/장식(470행 이후)은 동작에서 제외한다.
 # 시트 순서: 대기 9, 웅크리기 2, 걷기 12, 달리기 6, 회전 9,
@@ -71,12 +73,16 @@ def main():
         except Exception as error:
             raise RuntimeError(f"스프라이트 로딩 실패: {SPRITE_PATH}: {error}") from error
         running = True
+        previous_time = perf_counter()
         while running:
             for event in p2.get_events():
                 if event.type == p2.SDL_QUIT:
                     running = False
                 elif event.type == p2.SDL_KEYDOWN and event.key == p2.SDLK_ESCAPE:
                     running = False
+            now = perf_counter()
+            dt = now - previous_time
+            previous_time = now
             p2.clear_canvas()
             draw_frame(sprite, ANIMATIONS[0].frames[0])
             p2.update_canvas()
