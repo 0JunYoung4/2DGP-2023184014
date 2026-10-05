@@ -47,6 +47,7 @@ ANIMATIONS = (
         (87, 40, 29, 38), (118, 40, 30, 38), (150, 40, 30, 38),
         (182, 40, 31, 38), (213, 39, 30, 38), (243, 39, 26, 38),
     ))),
+    Animation("웅크리기", (Frame(270, 45, 24, 32), Frame(302, 51, 29, 26))),
 )
 
 
@@ -81,6 +82,7 @@ class AnimationPlayer:
                 break
             self.elapsed = max(0.0, self.elapsed - duration)
             if self.state == "WAITING":
+                self.animation_index = min(self.animation_index + 1, 1)
                 self.state = "PLAYING"
                 self.completed_cycles = 0
                 self.frame_index = 0
