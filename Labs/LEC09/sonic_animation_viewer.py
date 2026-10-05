@@ -46,6 +46,11 @@ ANIMATIONS = (
 )
 
 
+def draw_frame(sprite, frame):
+    sprite.clip_draw(*frame.clip_rect, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
+                     frame.width, frame.height)
+
+
 def main():
     import pico2d as p2
 
@@ -63,6 +68,7 @@ def main():
                 elif event.type == p2.SDL_KEYDOWN and event.key == p2.SDLK_ESCAPE:
                     running = False
             p2.clear_canvas()
+            draw_frame(sprite, ANIMATIONS[0].frames[0])
             p2.update_canvas()
             p2.delay(0.01)
     finally:
