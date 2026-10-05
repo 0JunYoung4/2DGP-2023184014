@@ -121,7 +121,7 @@ class AnimationPlayer:
                 break
             self.elapsed = max(0.0, self.elapsed - duration)
             if self.state == "WAITING":
-                self.animation_index = min(self.animation_index + 1, len(self.animations) - 1)
+                self.animation_index = (self.animation_index + 1) % len(self.animations)
                 self.state = "PLAYING"
                 self.completed_cycles = 0
                 self.frame_index = 0
