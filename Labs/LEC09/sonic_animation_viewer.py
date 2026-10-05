@@ -12,8 +12,14 @@ def main():
 
     p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
-        p2.clear_canvas()
-        p2.update_canvas()
+        running = True
+        while running:
+            for event in p2.get_events():
+                if event.type == p2.SDL_QUIT:
+                    running = False
+            p2.clear_canvas()
+            p2.update_canvas()
+            p2.delay(0.01)
     finally:
         p2.close_canvas()
 
