@@ -1,6 +1,10 @@
 """Sonic 스프라이트 애니메이션 뷰어.
 
 실행: python Labs/LEC09/sonic_animation_viewer.py
+검증: python Labs/LEC09/sonic_animation_viewer.py --self-test
+종료: ESC 또는 창 닫기. Python과 pico2d가 필요하다.
+같은 폴더의 sonic-sprite.png에서 13개 동작, 76개 프레임을 재생한다.
+각 동작을 5회 반복하고 마지막 자세에서 1초 쉰 뒤 다음 동작으로 넘어간다.
 """
 
 
@@ -20,7 +24,7 @@ SHEET_WIDTH, SHEET_HEIGHT = 399, 525
 # 시트 조사: 제목(상단)과 크레딧/장식(470행 이후)은 동작에서 제외한다.
 # 시트 순서: 대기 9, 웅크리기 2, 걷기 12, 달리기 6, 회전 9,
 # 회전 공 6, 질주 6, 회전 질주 6, 뒤돌기 6, 넘어짐 2,
-# 균형잡기 8, 놀라기 2, 둘러보기 2. 총 13개 동작, 86개 프레임.
+# 균형잡기 8, 놀라기 2, 둘러보기 2. 총 13개 동작, 76개 프레임.
 # 동작 이름은 뷰어에서 식별하기 위한 이름이며 원작의 공식 명칭은 아니다.
 
 
@@ -58,11 +62,11 @@ ANIMATIONS = (
     ))),
     Animation("달리기", tuple(Frame(*box) for box in (
         (1, 124, 33, 40), (39, 124, 35, 39), (89, 125, 35, 38),
-        (130, 123, 34, 40), (181, 123, 34, 40), (228, 123, 33, 39),
+        (130, 121, 34, 42), (181, 122, 34, 41), (228, 122, 33, 40),
     ))),
     Animation("회전", tuple(Frame(*box) for box in (
-        (1, 169, 29, 30), (35, 169, 29, 29), (67, 169, 30, 29),
-        (98, 169, 31, 29), (131, 169, 29, 29), (162, 169, 29, 30),
+        (1, 169, 29, 30), (35, 167, 29, 31), (67, 169, 30, 29),
+        (98, 169, 31, 29), (131, 168, 29, 30), (162, 168, 29, 31),
         (193, 170, 30, 29), (230, 170, 31, 29), (268, 170, 30, 30),
     ))),
     Animation("회전 공", tuple(Frame(*box) for box in (
@@ -78,27 +82,29 @@ ANIMATIONS = (
         (123, 285, 39, 32), (172, 286, 39, 31), (218, 285, 38, 32),
     ))),
     Animation("뒤돌기", tuple(Frame(*box) for box in (
-        (1, 327, 24, 44), (31, 327, 29, 44), (65, 327, 20, 44),
+        (1, 326, 24, 45), (31, 327, 29, 44), (65, 327, 20, 44),
         (90, 327, 25, 43), (119, 327, 25, 43), (149, 327, 20, 44),
     ))),
     Animation("넘어짐", (Frame(184, 341, 40, 28), Frame(232, 341, 39, 27))),
     Animation("균형잡기", tuple(Frame(*box) for box in (
         (1, 379, 27, 38), (31, 379, 31, 36), (64, 379, 31, 36),
-        (99, 379, 33, 36), (136, 379, 32, 36), (176, 379, 33, 36),
-        (217, 379, 33, 36), (254, 379, 33, 35),
+        (99, 377, 33, 38), (136, 379, 32, 36), (176, 379, 33, 36),
+        (217, 379, 33, 36), (254, 378, 33, 36),
     ))),
-    Animation("놀라기", (Frame(6, 429, 34, 40), Frame(49, 428, 34, 41))),
-    Animation("둘러보기", (Frame(96, 428, 23, 38), Frame(125, 428, 23, 38))),
+    Animation("놀라기", (Frame(6, 429, 34, 40), Frame(49, 426, 34, 43))),
+    Animation("둘러보기", (Frame(96, 427, 23, 39), Frame(125, 427, 23, 39))),
 )
 
 
 ALL_FRAMES = tuple(frame for animation in ANIMATIONS for frame in animation.frames)
 DISPLAY_SCALE = min((CANVAS_WIDTH - 160) / max(f.width for f in ALL_FRAMES),
-                    (CANVAS_HEIGHT - 160) / max(f.height for f in ALL_FRAMES))
+                    (CANVAS_HEIGHT - 144) / max(f.height for f in ALL_FRAMES))
 GROUND_Y = (CANVAS_HEIGHT - max(f.height for f in ALL_FRAMES) * DISPLAY_SCALE) / 2
 
 
 class AnimationPlayer:
+    """대기 중에도 이벤트 처리를 유지하고, 남은 시간을 다음 상태로 넘긴다."""
+
     def __init__(self, animations=ANIMATIONS):
         if not animations or any(not animation.frames for animation in animations):
             raise ValueError("동작 목록과 프레임은 비어 있을 수 없습니다.")
@@ -147,6 +153,17 @@ def destination_rect(frame):
 
 def draw_frame(sprite, frame):
     sprite.clip_draw(*frame.clip_rect, *destination_rect(frame))
+
+
+def draw_status(font, player):
+    cycle = min(player.completed_cycles + 1, REPEAT_COUNT)
+    font.draw(30, CANVAS_HEIGHT - 35,
+              f"{player.animation.name}  ({player.animation_index + 1}/{len(player.animations)})"
+              f"   프레임 {player.frame_index + 1}/{len(player.animation.frames)}"
+              f"   반복 {cycle}/{REPEAT_COUNT}", (25, 25, 45))
+    status = (f"다음 동작까지 {max(0.0, PAUSE_SECONDS - player.elapsed):.1f}초 대기"
+              if player.state == "WAITING" else "재생 중")
+    font.draw(30, 30, f"{status}   |   ESC: 종료", (25, 25, 45))
 
 
 def validate_assets(path=SPRITE_PATH):
@@ -226,7 +243,7 @@ def run_self_tests():
         def test_assets_and_visible_bounds(self):
             validate_assets()
             self.assertEqual(len(ANIMATIONS), 13)
-            self.assertEqual(len(ALL_FRAMES), 86)
+            self.assertEqual(len(ALL_FRAMES), 76)
             self.assertEqual([len(a.frames) for a in ANIMATIONS],
                              [9, 2, 12, 6, 9, 6, 6, 6, 6, 2, 8, 2, 2])
             for frame in ALL_FRAMES:
@@ -262,10 +279,16 @@ def main():
 
     p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
+        p2.hide_lattice()
         try:
             sprite = p2.load_image(str(SPRITE_PATH))
         except Exception as error:
             raise RuntimeError(f"스프라이트 로딩 실패: {SPRITE_PATH}: {error}") from error
+        font_path = Path(p2.__file__).resolve().parent / "data" / "ConsolaMalgun.ttf"
+        try:
+            font = p2.load_font(str(font_path), 22)
+        except Exception as error:
+            raise RuntimeError(f"pico2d 기본 글꼴 로딩 실패: {error}") from error
         running = True
         player = AnimationPlayer()
         previous_time = perf_counter()
@@ -281,6 +304,7 @@ def main():
             player.update(dt)
             p2.clear_canvas()
             draw_frame(sprite, player.frame)
+            draw_status(font, player)
             p2.update_canvas()
             p2.delay(0.01)
     finally:
