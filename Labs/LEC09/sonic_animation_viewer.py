@@ -5,6 +5,7 @@
 종료: ESC 또는 창 닫기. Python과 pico2d가 필요하다.
 같은 폴더의 sonic-sprite.png에서 13개 동작, 76개 프레임을 재생한다.
 각 동작을 5회 반복하고 마지막 자세에서 1초 쉰 뒤 다음 동작으로 넘어간다.
+이동 동작은 화면 가장자리에서 방향을 바꾸며, 회전 동작은 가볍게 튀어 오른다.
 """
 
 
@@ -97,9 +98,14 @@ ANIMATIONS = (
 
 
 ALL_FRAMES = tuple(frame for animation in ANIMATIONS for frame in animation.frames)
-DISPLAY_SCALE = min((CANVAS_WIDTH - 160) / max(f.width for f in ALL_FRAMES),
-                    (CANVAS_HEIGHT - 144) / max(f.height for f in ALL_FRAMES))
-GROUND_Y = (CANVAS_HEIGHT - max(f.height for f in ALL_FRAMES) * DISPLAY_SCALE) / 2
+DISPLAY_SCALE = 4.0  # 가장 큰 자세의 높이 180픽셀 (기존 576픽셀).
+GROUND_Y = 260
+EDGE_MARGIN = max(f.width for f in ALL_FRAMES) * DISPLAY_SCALE / 2 + 24
+TRAVEL_SPAN = CANVAS_WIDTH - 2 * EDGE_MARGIN
+# 초당 이동 거리와 프레임 사이클당 튀어 오르는 높이.
+MOTION_SPEEDS = {"걷기": 130, "달리기": 280, "회전": 180,
+                 "회전 공": 220, "질주": 420, "회전 질주": 360}
+HOP_HEIGHTS = {"회전": 45, "회전 공": 70, "넘어짐": 35, "놀라기": 20}
 
 
 class AnimationPlayer:
@@ -114,6 +120,23 @@ class AnimationPlayer:
         self.elapsed = 0.0
         self.completed_cycles = 0
         self.state = "PLAYING"
+        self.travel = TRAVEL_SPAN / 2
+        self.motion_time = 0.0
+
+    @property
+    def x(self):
+        phase = self.travel % (2 * TRAVEL_SPAN)
+        return EDGE_MARGIN + (phase if phase <= TRAVEL_SPAN else 2 * TRAVEL_SPAN - phase)
+
+    @property
+    def direction(self):
+        return 1 if self.travel % (2 * TRAVEL_SPAN) < TRAVEL_SPAN else -1
+
+    @property
+    def hop(self):
+        duration = len(self.animation.frames) * FRAME_SECONDS
+        phase = (self.motion_time % duration) / duration
+        return HOP_HEIGHTS.get(self.animation.name, 0) * max(0.0, math.sin(2 * math.pi * phase))
 
     @property
     def animation(self):
@@ -126,9 +149,15 @@ class AnimationPlayer:
     def update(self, dt):
         if not math.isfinite(dt):
             raise ValueError("경과 시간은 유한한 수여야 합니다.")
-        self.elapsed += max(0.0, dt)
-        while True:
+        remaining = max(0.0, dt)
+        while remaining > 0:
             duration = PAUSE_SECONDS if self.state == "WAITING" else FRAME_SECONDS
+            consumed = min(remaining, max(0.0, duration - self.elapsed))
+            if self.state == "PLAYING":
+                self.travel = (self.travel + MOTION_SPEEDS.get(self.animation.name, 0) * consumed) % (2 * TRAVEL_SPAN)
+                self.motion_time += consumed
+            self.elapsed += consumed
+            remaining = max(0.0, remaining - consumed)
             if self.elapsed + 1e-9 < duration:
                 break
             self.elapsed = max(0.0, self.elapsed - duration)
@@ -137,6 +166,7 @@ class AnimationPlayer:
                 self.state = "PLAYING"
                 self.completed_cycles = 0
                 self.frame_index = 0
+                self.motion_time = 0.0
                 continue
             self.frame_index = (self.frame_index + 1) % len(self.animation.frames)
             if self.frame_index == 0:
@@ -146,24 +176,16 @@ class AnimationPlayer:
                     self.state = "WAITING"
 
 
-def destination_rect(frame):
-    return (CANVAS_WIDTH / 2, GROUND_Y + frame.height * DISPLAY_SCALE / 2,
+def destination_rect(frame, player=None):
+    x = player.x if player is not None else CANVAS_WIDTH / 2
+    hop = player.hop if player is not None else 0
+    return (x, GROUND_Y + hop + frame.height * DISPLAY_SCALE / 2,
             frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
 
 
-def draw_frame(sprite, frame):
-    sprite.clip_draw(*frame.clip_rect, *destination_rect(frame))
-
-
-def draw_status(font, player):
-    cycle = min(player.completed_cycles + 1, REPEAT_COUNT)
-    font.draw(30, CANVAS_HEIGHT - 35,
-              f"{player.animation.name}  ({player.animation_index + 1}/{len(player.animations)})"
-              f"   프레임 {player.frame_index + 1}/{len(player.animation.frames)}"
-              f"   반복 {cycle}/{REPEAT_COUNT}", (25, 25, 45))
-    status = (f"다음 동작까지 {max(0.0, PAUSE_SECONDS - player.elapsed):.1f}초 대기"
-              if player.state == "WAITING" else "재생 중")
-    font.draw(30, 30, f"{status}   |   ESC: 종료", (25, 25, 45))
+def draw_frame(sprite, frame, player=None):
+    flip = "h" if player is not None and player.direction < 0 else ""
+    sprite.clip_composite_draw(*frame.clip_rect, 0, flip, *destination_rect(frame, player))
 
 
 def validate_assets(path=SPRITE_PATH):
@@ -231,6 +253,44 @@ def run_self_tests():
                              (fast.animation_index, fast.frame_index, fast.state,
                               fast.completed_cycles))
             self.assertAlmostEqual(slow.elapsed, fast.elapsed)
+            self.assertAlmostEqual(slow.x, fast.x, places=6)
+            self.assertAlmostEqual(slow.hop, fast.hop, places=6)
+            self.assertEqual(slow.direction, fast.direction)
+
+        def test_motion_speed_and_stationary_poses(self):
+            for name, distance in (("대기", 0), ("걷기", 65),
+                                   ("달리기", 140), ("질주", 210)):
+                animation = next(a for a in ANIMATIONS if a.name == name)
+                player = AnimationPlayer((animation,))
+                start = player.x
+                player.update(0.5)
+                self.assertAlmostEqual(player.x - start, distance)
+
+        def test_bounce_and_pause_freeze(self):
+            walk = next(a for a in ANIMATIONS if a.name == "걷기")
+            player = AnimationPlayer((walk,))
+            player.travel = TRAVEL_SPAN - 10
+            player.update(0.2)
+            self.assertEqual(player.direction, -1)
+            self.assertAlmostEqual(player.x, CANVAS_WIDTH - EDGE_MARGIN - 16)
+            player.update(len(walk.frames) * FRAME_SECONDS * REPEAT_COUNT - 0.2)
+            frozen = (player.x, player.hop, player.direction)
+            self.assertEqual(player.state, "WAITING")
+            player.update(0.999)
+            self.assertEqual((player.x, player.hop, player.direction), frozen)
+
+        def test_moving_frames_stay_inside_canvas(self):
+            player = AnimationPlayer()
+            saw_hop = False
+            for _ in range(6000):
+                player.update(0.02)
+                x, y, width, height = destination_rect(player.frame, player)
+                self.assertGreaterEqual(x - width / 2, 0)
+                self.assertLessEqual(x + width / 2, CANVAS_WIDTH)
+                self.assertGreaterEqual(y - height / 2, 0)
+                self.assertLessEqual(y + height / 2, CANVAS_HEIGHT)
+                saw_hop |= player.hop > 0
+            self.assertTrue(saw_hop)
 
         def test_single_frame_motion(self):
             player = AnimationPlayer((Animation("한 프레임", (ALL_FRAMES[0],)),))
@@ -253,7 +313,8 @@ def run_self_tests():
                 self.assertGreaterEqual(y - height / 2, 0)
                 self.assertLessEqual(y + height / 2, CANVAS_HEIGHT)
                 self.assertAlmostEqual(width / height, frame.width / frame.height)
-                self.assertGreaterEqual(height, CANVAS_HEIGHT * 0.45)
+                self.assertGreaterEqual(height, 100)
+                self.assertLessEqual(height, 180)
 
         def test_invalid_inputs(self):
             for animations in ((), (Animation("빈 동작", ()),)):
@@ -284,11 +345,6 @@ def main():
             sprite = p2.load_image(str(SPRITE_PATH))
         except Exception as error:
             raise RuntimeError(f"스프라이트 로딩 실패: {SPRITE_PATH}: {error}") from error
-        font_path = Path(p2.__file__).resolve().parent / "data" / "ConsolaMalgun.ttf"
-        try:
-            font = p2.load_font(str(font_path), 22)
-        except Exception as error:
-            raise RuntimeError(f"pico2d 기본 글꼴 로딩 실패: {error}") from error
         running = True
         player = AnimationPlayer()
         previous_time = perf_counter()
@@ -303,8 +359,7 @@ def main():
             previous_time = now
             player.update(dt)
             p2.clear_canvas()
-            draw_frame(sprite, player.frame)
-            draw_status(font, player)
+            draw_frame(sprite, player.frame, player)
             p2.update_canvas()
             p2.delay(0.01)
     finally:
