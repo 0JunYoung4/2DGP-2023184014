@@ -4,7 +4,11 @@
 """
 
 
+from pathlib import Path
+
+
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
+SPRITE_PATH = Path(__file__).resolve().with_name("sonic-sprite.png")
 
 
 def main():
