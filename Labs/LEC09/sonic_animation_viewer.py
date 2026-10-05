@@ -4,6 +4,7 @@
 """
 
 
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -15,6 +16,34 @@ SHEET_WIDTH, SHEET_HEIGHT = 399, 525
 # 회전 공 6, 질주 6, 회전 질주 6, 뒤돌기 6, 넘어짐 2,
 # 균형잡기 8, 놀라기 2, 둘러보기 2. 총 13개 동작, 86개 프레임.
 # 동작 이름은 뷰어에서 식별하기 위한 이름이며 원작의 공식 명칭은 아니다.
+
+
+@dataclass(frozen=True)
+class Frame:
+    # 원본 PNG의 왼쪽 위 기준 영역. 기준점은 잘라낸 영역의 아래쪽 중앙.
+    x: int
+    y: int
+    width: int
+    height: int
+
+    @property
+    def clip_rect(self):
+        return self.x, SHEET_HEIGHT - self.y - self.height, self.width, self.height
+
+
+@dataclass(frozen=True)
+class Animation:
+    name: str
+    frames: tuple[Frame, ...]
+
+
+ANIMATIONS = (
+    Animation("대기", tuple(Frame(*box) for box in (
+        (1, 39, 29, 39), (31, 40, 26, 38), (58, 39, 29, 39),
+        (87, 40, 29, 38), (118, 40, 30, 38), (150, 40, 30, 38),
+        (182, 40, 31, 38), (213, 39, 30, 38), (243, 39, 26, 38),
+    ))),
+)
 
 
 def main():
