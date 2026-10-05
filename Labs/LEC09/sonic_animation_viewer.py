@@ -4,8 +4,18 @@
 """
 
 
+CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
+
+
 def main():
-    pass
+    import pico2d as p2
+
+    p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+    try:
+        p2.clear_canvas()
+        p2.update_canvas()
+    finally:
+        p2.close_canvas()
 
 
 if __name__ == "__main__":
