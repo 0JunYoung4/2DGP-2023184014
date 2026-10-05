@@ -16,6 +16,10 @@ def main():
 
     p2.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
+        try:
+            sprite = p2.load_image(str(SPRITE_PATH))
+        except Exception as error:
+            raise RuntimeError(f"스프라이트 로딩 실패: {SPRITE_PATH}: {error}") from error
         running = True
         while running:
             for event in p2.get_events():
