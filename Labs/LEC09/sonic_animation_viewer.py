@@ -13,6 +13,7 @@ CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 SPRITE_PATH = Path(__file__).resolve().with_name("sonic-sprite.png")
 FRAME_SECONDS = 1.0 / 10
 REPEAT_COUNT = 5
+PAUSE_SECONDS = 1.0
 SHEET_WIDTH, SHEET_HEIGHT = 399, 525
 # 시트 조사: 제목(상단)과 크레딧/장식(470행 이후)은 동작에서 제외한다.
 # 시트 순서: 대기 9, 웅크리기 2, 걷기 12, 달리기 6, 회전 9,
@@ -73,18 +74,23 @@ class AnimationPlayer:
         return self.animation.frames[self.frame_index]
 
     def update(self, dt):
-        if self.state == "WAITING":
-            return
         self.elapsed += max(0.0, dt)
-        while self.elapsed + 1e-9 >= FRAME_SECONDS:
-            self.elapsed = max(0.0, self.elapsed - FRAME_SECONDS)
+        while True:
+            duration = PAUSE_SECONDS if self.state == "WAITING" else FRAME_SECONDS
+            if self.elapsed + 1e-9 < duration:
+                break
+            self.elapsed = max(0.0, self.elapsed - duration)
+            if self.state == "WAITING":
+                self.state = "PLAYING"
+                self.completed_cycles = 0
+                self.frame_index = 0
+                continue
             self.frame_index = (self.frame_index + 1) % len(self.animation.frames)
             if self.frame_index == 0:
                 self.completed_cycles += 1
                 if self.completed_cycles == REPEAT_COUNT:
                     self.frame_index = len(self.animation.frames) - 1
                     self.state = "WAITING"
-                    break
 
 
 def destination_rect(frame):
