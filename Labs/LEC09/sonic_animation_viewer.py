@@ -60,6 +60,7 @@ class AnimationPlayer:
         self.animation_index = 0
         self.frame_index = 0
         self.elapsed = 0.0
+        self.completed_cycles = 0
 
     @property
     def animation(self):
@@ -74,6 +75,8 @@ class AnimationPlayer:
         while self.elapsed + 1e-9 >= FRAME_SECONDS:
             self.elapsed = max(0.0, self.elapsed - FRAME_SECONDS)
             self.frame_index = (self.frame_index + 1) % len(self.animation.frames)
+            if self.frame_index == 0:
+                self.completed_cycles += 1
 
 
 def destination_rect(frame):
