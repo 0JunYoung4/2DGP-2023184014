@@ -17,6 +17,8 @@ def main():
             for event in p2.get_events():
                 if event.type == p2.SDL_QUIT:
                     running = False
+                elif event.type == p2.SDL_KEYDOWN and event.key == p2.SDLK_ESCAPE:
+                    running = False
             p2.clear_canvas()
             p2.update_canvas()
             p2.delay(0.01)
