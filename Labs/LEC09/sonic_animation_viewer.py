@@ -54,6 +54,28 @@ DISPLAY_SCALE = min((CANVAS_WIDTH - 160) / max(f.width for f in ALL_FRAMES),
 GROUND_Y = (CANVAS_HEIGHT - max(f.height for f in ALL_FRAMES) * DISPLAY_SCALE) / 2
 
 
+class AnimationPlayer:
+    def __init__(self, animations=ANIMATIONS):
+        self.animations = animations
+        self.animation_index = 0
+        self.frame_index = 0
+        self.elapsed = 0.0
+
+    @property
+    def animation(self):
+        return self.animations[self.animation_index]
+
+    @property
+    def frame(self):
+        return self.animation.frames[self.frame_index]
+
+    def update(self, dt):
+        self.elapsed += max(0.0, dt)
+        while self.elapsed + 1e-9 >= FRAME_SECONDS:
+            self.elapsed = max(0.0, self.elapsed - FRAME_SECONDS)
+            self.frame_index = (self.frame_index + 1) % len(self.animation.frames)
+
+
 def destination_rect(frame):
     return (CANVAS_WIDTH / 2, GROUND_Y + frame.height * DISPLAY_SCALE / 2,
             frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
@@ -73,6 +95,7 @@ def main():
         except Exception as error:
             raise RuntimeError(f"스프라이트 로딩 실패: {SPRITE_PATH}: {error}") from error
         running = True
+        player = AnimationPlayer()
         previous_time = perf_counter()
         while running:
             for event in p2.get_events():
@@ -83,8 +106,9 @@ def main():
             now = perf_counter()
             dt = now - previous_time
             previous_time = now
+            player.update(dt)
             p2.clear_canvas()
-            draw_frame(sprite, ANIMATIONS[0].frames[0])
+            draw_frame(sprite, player.frame)
             p2.update_canvas()
             p2.delay(0.01)
     finally:
