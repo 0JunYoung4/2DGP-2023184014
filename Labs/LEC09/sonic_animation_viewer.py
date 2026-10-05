@@ -49,11 +49,16 @@ ANIMATIONS = (
 ALL_FRAMES = tuple(frame for animation in ANIMATIONS for frame in animation.frames)
 DISPLAY_SCALE = min((CANVAS_WIDTH - 160) / max(f.width for f in ALL_FRAMES),
                     (CANVAS_HEIGHT - 160) / max(f.height for f in ALL_FRAMES))
+GROUND_Y = (CANVAS_HEIGHT - max(f.height for f in ALL_FRAMES) * DISPLAY_SCALE) / 2
+
+
+def destination_rect(frame):
+    return (CANVAS_WIDTH / 2, GROUND_Y + frame.height * DISPLAY_SCALE / 2,
+            frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
 
 
 def draw_frame(sprite, frame):
-    sprite.clip_draw(*frame.clip_rect, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
-                     frame.width * DISPLAY_SCALE, frame.height * DISPLAY_SCALE)
+    sprite.clip_draw(*frame.clip_rect, *destination_rect(frame))
 
 
 def main():
